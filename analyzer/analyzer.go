@@ -125,8 +125,6 @@ func (fa *fmtQuoteCheckAnalyzer) searchForBadQuotedTemplate(pass *analysis.Pass,
 					},
 				},
 			})
-			// pass.Reportf(templateLit.Pos(),
-			// 	"explicit single-quoted '%%s' should be replaced by `%%q` in %s", fullQualifiedFunctionName)
 		}
 	}
 }
