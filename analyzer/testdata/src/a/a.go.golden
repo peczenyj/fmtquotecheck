@@ -1,0 +1,43 @@
+package a
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+)
+
+var (
+	something = fmt.Sprintf("starting %q", "program") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Sprintf"
+
+	errSomething = fmt.Errorf("unexpected error from %q", "program") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Errorf"
+)
+
+func setup() {
+	_ = fmt.Sprintf("starting %q", "function") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Sprintf"
+
+	_ = fmt.Errorf("unexpected error from %q", "function") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Errorf"
+
+	fmt.Printf("just printing from %q", "function") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf"
+
+	fmt.Printf(
+		"just printing from %q with %q", // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf"
+		"function",
+		"style",
+	)
+
+	fmt.Fprintf(os.Stderr, "just printing from %q on stderr", "function") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Fprintf"
+
+	_ = func(origin string) string {
+		return fmt.Sprintf("starting %q", origin) // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Sprintf"
+	}("callback")
+
+	for i := 0; i < 3; i++ {
+		fmt.Printf("for loop iteraration %q", strconv.Itoa(i)) // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf"
+	}
+
+	defer fmt.Printf("ending %q", "function/defer") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf"
+
+	defer func() {
+		fmt.Printf("ending %q", "callback/defer") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf"
+	}()
+}

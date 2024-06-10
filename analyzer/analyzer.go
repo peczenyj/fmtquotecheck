@@ -105,8 +105,28 @@ func (fa *fmtQuoteCheckAnalyzer) searchForBadQuotedTemplate(pass *analysis.Pass,
 		}
 
 		if strings.Contains(template, "'%s'") {
-			pass.Reportf(templateLit.Pos(),
-				"explicit single-quoted '%%s' should be replaced by `%%q` in %s", fullQualifiedFunctionName)
+			fix := strings.ReplaceAll(template, "'%s'", "%q")
+
+			msg := "explicit single-quoted '%s' should be replaced by `%q` in " + fullQualifiedFunctionName
+
+			pass.Report(analysis.Diagnostic{
+				Pos:     templateLit.Pos(),
+				End:     templateLit.End(),
+				Message: msg,
+				SuggestedFixes: []analysis.SuggestedFix{
+					{
+						TextEdits: []analysis.TextEdit{
+							{
+								Pos:     templateLit.Pos(),
+								End:     templateLit.End(),
+								NewText: []byte(strconv.Quote(fix)),
+							},
+						},
+					},
+				},
+			})
+			// pass.Reportf(templateLit.Pos(),
+			// 	"explicit single-quoted '%%s' should be replaced by `%%q` in %s", fullQualifiedFunctionName)
 		}
 	}
 }
