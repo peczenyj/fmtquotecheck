@@ -1,3 +1,15 @@
+## What's Changed in v0.0.2
+* add check if token is a string
+* simplify imports
+* Merge branch 'main' of github.com:peczenyj/fmtquotecheck
+* Update README.md
+* add option to fix
+* Update CONTRIBUTING.md
+* fix readme
+* tag version and add changelog
+
+**Full Changelog**: https://github.com///compare/v0.0.1...v0.0.2
+
 ## What's Changed in v0.0.1
 * Update README.md
 * Merge branch 'main' of github.com:peczenyj/fmtquotecheck

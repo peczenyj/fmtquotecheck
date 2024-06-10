@@ -47,6 +47,8 @@ $ fmtquotecheck ./main.go
 ./main.go:6:16: explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf
 ```
 
+by using the option `-fix` the linter will convert all `'%s'` to `%q`.
+
 ## CI
 
 ### CircleCI
