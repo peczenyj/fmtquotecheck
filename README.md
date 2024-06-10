@@ -15,7 +15,9 @@
 [![Last commit](https://img.shields.io/github/last-commit/peczenyj/fmtquotecheck.svg)](https://github.com/peczenyj/fmtquotecheck/commit/HEAD)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/peczenyj/fmtquotecheck/blob/main/CONTRIBUTING.md#pull-request-process)
 
-verify when safely escape and single quote strings on fmt.Sprintf
+Verify when safely escape and single quote strings on fmt.Sprintf.
+
+This code is based on [perfsprint](https://github.com/catenacyber/perfsprint) analyzer.
 
 ## Motivation
 
