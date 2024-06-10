@@ -2,6 +2,7 @@ package analyzer
 
 import (
 	"go/ast"
+	"go/token"
 	"strconv"
 	"strings"
 
@@ -96,7 +97,7 @@ func (fa *fmtQuoteCheckAnalyzer) searchForBadQuotedTemplate(pass *analysis.Pass,
 	fullQualifiedFunctionName string,
 	value ast.Expr,
 ) {
-	if templateLit, ok := value.(*ast.BasicLit); ok {
+	if templateLit, ok := value.(*ast.BasicLit); ok && templateLit.Kind == token.STRING {
 		template, err := strconv.Unquote(templateLit.Value)
 		if err != nil {
 			_ = err
