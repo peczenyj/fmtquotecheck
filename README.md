@@ -51,20 +51,20 @@ $ fmtquotecheck ./main.go
 
 ```yaml
 - run:
-    name: install ttempdir
+    name: install fmtquotecheck
     command: go install github.com/peczenyj/fmtquotecheck/cmd/fmtquotecheck@latest
 
 - run:
-    name: run ttempdir
-    command: ttempdir ./...
+    name: run fmtquotecheck
+    command: fmtquotecheck ./...
 ```
 
 ### GitHub Actions
 
 ```yaml
-- name: install ttempdir
+- name: install fmtquotecheck
   run: go install github.com/peczenyj/fmtquotecheck/cmd/fmtquotecheck@latest
 
-- name: run ttempdir
-  run: ttempdir ./...
+- name: run fmtquotecheck
+  run: fmtquotecheck ./...
 ```
