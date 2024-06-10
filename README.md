@@ -1,3 +1,3 @@
 # quotecheck
 
-verify when '%s' can be substitute by %q on fmt.Sprintf
+verify when safely escape and single quote strings on fmt.Sprintf
