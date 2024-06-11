@@ -1,4 +1,4 @@
-.PHONY: info fmt goimports gofumpt lint go_fix go_vet golangci test coverage build clean
+.PHONY: info fmt goimports gofumpt lint go_fix go_vet golangci test coverage build install clean
 
 BINARY = fmtquotecheck
 
@@ -43,6 +43,9 @@ coverage:
 	go test -v -race -cover -covermode=atomic -coverprofile coverage.out ./...
 
 build: $(BINARY)
+
+install:
+	go install ./cmd/fmtquotecheck
 
 clean:
 	rm -f $(BINARY)
