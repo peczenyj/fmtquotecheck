@@ -77,55 +77,73 @@ func (fa *fmtQuoteCheckAnalyzer) checkFullQualifiedFunctionCall(pass *analysis.P
 	called *ast.SelectorExpr,
 	expression *ast.Ident,
 ) {
+	if len(call.Args) < 2 { //nolint:mnd
+		return
+	}
+
 	fullQualifiedFunctionName := expression.Name + "." + called.Sel.Name
 
 	switch fullQualifiedFunctionName {
-	case "fmt.Printf", "fmt.Sprintf", "fmt.Errorf":
+	case "fmt.Printf", "fmt.Sprintf", "fmt.Errorf", "fmt.Fprintf":
 		fa.searchForBadQuotedTemplate(pass,
 			fullQualifiedFunctionName,
-			call.Args[0],
-		)
-	case "fmt.Fprintf":
-		fa.searchForBadQuotedTemplate(pass,
-			fullQualifiedFunctionName,
-			call.Args[1],
+			call.Args[:2],
 		)
 	}
 }
 
 func (fa *fmtQuoteCheckAnalyzer) searchForBadQuotedTemplate(pass *analysis.Pass,
 	fullQualifiedFunctionName string,
-	value ast.Expr,
+	values []ast.Expr,
 ) {
-	if templateLit, ok := value.(*ast.BasicLit); ok && templateLit.Kind == token.STRING {
-		template, err := strconv.Unquote(templateLit.Value)
-		if err != nil {
-			_ = err
+	for _, value := range values {
+		if templateLit, ok := value.(*ast.BasicLit); ok && templateLit.Kind == token.STRING {
+			fa.checkTemplateLiteral(pass, fullQualifiedFunctionName, templateLit)
 
 			return
 		}
-
-		if strings.Contains(template, "'%s'") {
-			fix := strings.ReplaceAll(template, "'%s'", "%q")
-
-			msg := "explicit single-quoted '%s' should be replaced by `%q` in " + fullQualifiedFunctionName
-
-			pass.Report(analysis.Diagnostic{
-				Pos:     templateLit.Pos(),
-				End:     templateLit.End(),
-				Message: msg,
-				SuggestedFixes: []analysis.SuggestedFix{
-					{
-						TextEdits: []analysis.TextEdit{
-							{
-								Pos:     templateLit.Pos(),
-								End:     templateLit.End(),
-								NewText: []byte(strconv.Quote(fix)),
-							},
-						},
-					},
-				},
-			})
-		}
 	}
+}
+
+func (fa *fmtQuoteCheckAnalyzer) checkTemplateLiteral(pass *analysis.Pass,
+	fullQualifiedFunctionName string,
+	templateLit *ast.BasicLit,
+) {
+	template, err := strconv.Unquote(templateLit.Value)
+	if err != nil {
+		_ = err // this should be unreachable
+
+		return
+	}
+
+	toSubstitute := strings.Count(template, "'%s'")
+	if toSubstitute == 0 {
+		return
+	}
+
+	msg := "explicit single-quoted '%s' should be replaced by `%q` in "
+	msg += fullQualifiedFunctionName
+
+	fix := strconv.Quote(strings.Replace(template, "'%s'", "%q", toSubstitute))
+
+	textEdit := analysis.TextEdit{
+		Pos:     templateLit.Pos(),
+		End:     templateLit.End(),
+		NewText: []byte(fix),
+	}
+
+	suggestedFix := analysis.SuggestedFix{
+		Message:   "replacing '%s' by `%q`",
+		TextEdits: []analysis.TextEdit{textEdit},
+	}
+
+	pass.Report(analysis.Diagnostic{
+		Pos:     templateLit.Pos(),
+		End:     templateLit.End(),
+		Message: msg,
+		URL:     "https://pkg.go.dev/fmt#pkg-overview",
+		SuggestedFixes: []analysis.SuggestedFix{
+			suggestedFix,
+		},
+	})
 }
