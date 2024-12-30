@@ -1,4 +1,22 @@
+## What's Changed in v0.0.3
+* Merge pull request #4 from peczenyj/dependabot/go_modules/production-dependencies-d889f6e8ba
+* Merge branch 'main' into dependabot/go_modules/production-dependencies-d889f6e8ba
+* Merge pull request #2 from peczenyj/dependabot/github_actions/codecov/codecov-action-4.5.0
+* Merge branch 'main' into dependabot/github_actions/codecov/codecov-action-4.5.0
+* Bump codecov/codecov-action from 4.4.1 to 4.5.0
+* fix yaml lint issues
+* enable tests with go 1.23.x
+* Merge branch 'main' into dependabot/go_modules/production-dependencies-d889f6e8ba
+* Update lint.yml
+* Bump golang.org/x/tools
+* fix lint.yml workflow
+* add make install
+* small refactors
+
+**Full Changelog**: https://github.com///compare/v0.0.2...v0.0.3
+
 ## What's Changed in v0.0.2
+* bump docs
 * add check if token is a string
 * simplify imports
 * Merge branch 'main' of github.com:peczenyj/fmtquotecheck
