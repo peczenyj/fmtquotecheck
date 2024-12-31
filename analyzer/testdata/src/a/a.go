@@ -2,6 +2,7 @@ package a
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 )
@@ -35,9 +36,11 @@ func setup() {
 		fmt.Printf("for loop iteraration '%s'", strconv.Itoa(i)) // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf"
 	}
 
-	defer fmt.Printf("ending '%s'", "function/defer") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf"
+	defer log.Printf("ending '%s'", "function/defer") // want "explicit single-quoted '%s' should be replaced by `%q` in log.Printf"
+
+	logger := log.Default()
 
 	defer func() {
-		fmt.Printf("ending '%s'", "callback/defer") // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf"
+		logger.Printf("ending '%s'", "callback/defer") // want "explicit single-quoted '%s' should be replaced by `%q` in logger.Printf"
 	}()
 }

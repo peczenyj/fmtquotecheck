@@ -1,0 +1,13 @@
+package fix
+
+import (
+	"fmt"
+)
+
+func Setup() {
+	fmt.Printf(
+		"just printing from %q with %q", // want "explicit single-quoted '%s' should be replaced by `%q` in fmt.Printf"
+		"function",
+		"style",
+	)
+}

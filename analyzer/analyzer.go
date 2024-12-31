@@ -1,14 +1,21 @@
 package analyzer
 
 import (
+	"errors"
+	"flag"
+	"fmt"
 	"go/ast"
 	"go/token"
+	"go/types"
+	"sort"
 	"strconv"
 	"strings"
 
+	"golang.org/x/exp/maps"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
+	"golang.org/x/tools/go/types/typeutil"
 )
 
 const (
@@ -17,8 +24,32 @@ const (
 	url  = "https://github.com/peczenyj/fmtquotecheck"
 )
 
-func New() *analysis.Analyzer {
+// Option functional option type.
+type Option func(*fmtQuoteCheckAnalyzer) error
+
+// WithPrintfFuncs allow substitute the default list of printf functions.
+func WithPrintfFuncs(printfFuncs ...string) Option {
+	return func(fqca *fmtQuoteCheckAnalyzer) error {
+		err := fqca.printfFuncs.setAll(printfFuncs)
+		if err != nil {
+			return fmt.Errorf("invalid printf func: %w", err)
+		}
+
+		return nil
+	}
+}
+
+// New constructor.
+func New(opts ...Option) (*analysis.Analyzer, error) {
 	var instance fmtQuoteCheckAnalyzer
+
+	instance.SetDefaults()
+
+	for _, opt := range opts {
+		if err := opt(&instance); err != nil {
+			return nil, err
+		}
+	}
 
 	analyzer := &analysis.Analyzer{
 		Name: name,
@@ -30,10 +61,35 @@ func New() *analysis.Analyzer {
 		},
 	}
 
-	return analyzer
+	instance.bindFlags(&analyzer.Flags)
+
+	return analyzer, nil
 }
 
-type fmtQuoteCheckAnalyzer struct{}
+type fmtQuoteCheckAnalyzer struct {
+	printfFuncs stringSet
+}
+
+func (fa *fmtQuoteCheckAnalyzer) SetDefaults() {
+	fa.printfFuncs = stringSet{
+		"fmt.Printf":           struct{}{},
+		"fmt.Sprintf":          struct{}{},
+		"fmt.Errorf":           struct{}{},
+		"fmt.Fprintf":          struct{}{},
+		"log.Fatalf":           struct{}{},
+		"log.Panicf":           struct{}{},
+		"log.Printf":           struct{}{},
+		"(*log.Logger).Fatalf": struct{}{},
+		"(*log.Logger).Panicf": struct{}{},
+		"(*log.Logger).Printf": struct{}{},
+	}
+}
+
+func (fa *fmtQuoteCheckAnalyzer) bindFlags(flagSet *flag.FlagSet) {
+	flagSet.Var(&fa.printfFuncs,
+		"funcs",
+		"full qualified function names to check, split by comma")
+}
 
 func (fa *fmtQuoteCheckAnalyzer) Run(pass *analysis.Pass) (interface{}, error) {
 	insp, _ := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
@@ -58,6 +114,17 @@ func (fa *fmtQuoteCheckAnalyzer) checkAstNode(pass *analysis.Pass, node ast.Node
 func (fa *fmtQuoteCheckAnalyzer) checkAstCallExpression(pass *analysis.Pass,
 	call *ast.CallExpr,
 ) {
+	funcObj, ok := typeutil.Callee(pass.TypesInfo, call).(*types.Func)
+	if !ok {
+		return
+	}
+
+	fullName := funcObj.Origin().FullName()
+
+	if _, isPrintf := fa.printfFuncs[fullName]; !isPrintf {
+		return
+	}
+
 	if called, ok := call.Fun.(*ast.SelectorExpr); ok {
 		fa.checkAstSelectorExpression(pass, call, called)
 	}
@@ -68,28 +135,27 @@ func (fa *fmtQuoteCheckAnalyzer) checkAstSelectorExpression(pass *analysis.Pass,
 	called *ast.SelectorExpr,
 ) {
 	if expression, ok := called.X.(*ast.Ident); ok {
-		fa.checkFullQualifiedFunctionCall(pass, call, called, expression)
+		fa.checkAstIdentFullQualifiedFunctionCall(pass, call, called, expression)
+
+		return
 	}
 }
 
-func (fa *fmtQuoteCheckAnalyzer) checkFullQualifiedFunctionCall(pass *analysis.Pass,
+func (fa *fmtQuoteCheckAnalyzer) checkAstIdentFullQualifiedFunctionCall(pass *analysis.Pass,
 	call *ast.CallExpr,
 	called *ast.SelectorExpr,
 	expression *ast.Ident,
 ) {
-	if len(call.Args) < 2 { //nolint:mnd
+	if len(call.Args) <= 1 {
 		return
 	}
 
 	fullQualifiedFunctionName := expression.Name + "." + called.Sel.Name
 
-	switch fullQualifiedFunctionName {
-	case "fmt.Printf", "fmt.Sprintf", "fmt.Errorf", "fmt.Fprintf":
-		fa.searchForBadQuotedTemplate(pass,
-			fullQualifiedFunctionName,
-			call.Args[:2],
-		)
-	}
+	fa.searchForBadQuotedTemplate(pass,
+		fullQualifiedFunctionName,
+		call.Args[:2],
+	)
 }
 
 func (fa *fmtQuoteCheckAnalyzer) searchForBadQuotedTemplate(pass *analysis.Pass,
@@ -146,4 +212,42 @@ func (fa *fmtQuoteCheckAnalyzer) checkTemplateLiteral(pass *analysis.Pass,
 			suggestedFix,
 		},
 	})
+}
+
+type stringSet map[string]struct{}
+
+var errEmptyString = errors.New("empty string")
+
+func (ss stringSet) Set(value string) error {
+	return ss.setAll(strings.Split(value, ","))
+}
+
+func (ss stringSet) setAll(names []string) error {
+	maps.Clear(ss)
+
+	for _, name := range names {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			return errEmptyString
+		}
+
+		ss[name] = struct{}{}
+	}
+
+	return nil
+}
+
+func (ss stringSet) String() string {
+	list := make([]string, len(ss))
+	cursor := 0
+
+	for name := range ss {
+		list[cursor] = name
+
+		cursor++
+	}
+
+	sort.Strings(list)
+
+	return strings.Join(list, ",")
 }
