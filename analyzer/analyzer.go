@@ -3,6 +3,7 @@ package analyzer
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -23,10 +24,32 @@ const (
 	url  = "https://github.com/peczenyj/fmtquotecheck"
 )
 
-func New() *analysis.Analyzer {
+// Option functional option type.
+type Option func(*fmtQuoteCheckAnalyzer) error
+
+// WithPrintfFuncs allow substitute the default list of printf functions.
+func WithPrintfFuncs(printfFuncs ...string) Option {
+	return func(fqca *fmtQuoteCheckAnalyzer) error {
+		err := fqca.printfFuncs.setAll(printfFuncs)
+		if err != nil {
+			return fmt.Errorf("invalid printf func: %w", err)
+		}
+
+		return nil
+	}
+}
+
+// New constructor.
+func New(opts ...Option) (*analysis.Analyzer, error) {
 	var instance fmtQuoteCheckAnalyzer
 
 	instance.SetDefaults()
+
+	for _, opt := range opts {
+		if err := opt(&instance); err != nil {
+			return nil, err
+		}
+	}
 
 	analyzer := &analysis.Analyzer{
 		Name: name,
@@ -40,7 +63,7 @@ func New() *analysis.Analyzer {
 
 	instance.bindFlags(&analyzer.Flags)
 
-	return analyzer
+	return analyzer, nil
 }
 
 type fmtQuoteCheckAnalyzer struct {
@@ -196,9 +219,14 @@ type stringSet map[string]struct{}
 var errEmptyString = errors.New("empty string")
 
 func (ss stringSet) Set(value string) error {
+	return ss.setAll(strings.Split(value, ","))
+}
+
+func (ss stringSet) setAll(names []string) error {
 	maps.Clear(ss)
 
-	for _, name := range strings.Split(value, ",") {
+	for _, name := range names {
+		name = strings.TrimSpace(name)
 		if name == "" {
 			return errEmptyString
 		}
