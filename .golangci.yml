@@ -160,7 +160,6 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
     - fatcontext
     - forbidigo
     - forcetypeassert
