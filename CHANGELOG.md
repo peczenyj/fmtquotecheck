@@ -1,3 +1,13 @@
+## What's Changed in v0.0.4
+* Merge pull request #5 from peczenyj/dependabot/github_actions/codecov/codecov-action-5.1.2
+* Bump codecov/codecov-action from 4.5.0 to 5.1.2
+* Merge pull request #7 from peczenyj/improve-tests-and-cli
+* improve tests, add functional option type
+* improve tests and cli
+* bump version
+
+**Full Changelog**: https://github.com///compare/v0.0.3...v0.0.4
+
 ## What's Changed in v0.0.3
 * Merge pull request #4 from peczenyj/dependabot/go_modules/production-dependencies-d889f6e8ba
 * Merge branch 'main' into dependabot/go_modules/production-dependencies-d889f6e8ba
