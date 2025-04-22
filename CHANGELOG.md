@@ -1,4 +1,5 @@
-## What's Changed
+## What's Changed in v0.0.5
+* update CHANGELOG
 * update dependencies
 * Merge pull request #12 from peczenyj/dependabot/go_modules/production-dependencies-0ea9867b20
 * set min go version to 1.23
@@ -11,6 +12,8 @@
 * Bump codecov/codecov-action from 5.1.2 to 5.3.1
 * Merge pull request #8 from peczenyj/dependabot/go_modules/production-dependencies-a7e3f36068
 * Bump golang.org/x/tools in the production-dependencies group
+
+**Full Changelog**: https://github.com///compare/v0.0.4...v0.0.5
 
 ## What's Changed in v0.0.4
 * bump version
