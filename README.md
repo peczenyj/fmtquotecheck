@@ -1,7 +1,7 @@
 # quotecheck
 
 [![tag](https://img.shields.io/github/tag/peczenyj/fmtquotecheck.svg)](https://github.com/peczenyj/fmtquotecheck/releases)
-![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.21-%23007d9c)
+![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.23-%23007d9c)
 [![GoDoc](https://pkg.go.dev/badge/github.com/peczenyj/fmtquotecheck)](http://pkg.go.dev/github.com/peczenyj/fmtquotecheck)
 [![Go](https://github.com/peczenyj/fmtquotecheck/actions/workflows/go.yml/badge.svg)](https://github.com/peczenyj/fmtquotecheck/actions/workflows/go.yml)
 [![Lint](https://github.com/peczenyj/fmtquotecheck/actions/workflows/lint.yml/badge.svg)](https://github.com/peczenyj/fmtquotecheck/actions/workflows/lint.yml)
