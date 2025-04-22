@@ -1,4 +1,19 @@
+## What's Changed
+* update dependencies
+* Merge pull request #12 from peczenyj/dependabot/go_modules/production-dependencies-0ea9867b20
+* set min go version to 1.23
+* fix go.mod
+* Merge branch 'main' into dependabot/go_modules/production-dependencies-0ea9867b20
+* migrate golangci conf to v2
+* try fix workflow
+* Bump golang.org/x/tools
+* Merge pull request #9 from peczenyj/dependabot/github_actions/codecov/codecov-action-5.3.1
+* Bump codecov/codecov-action from 5.1.2 to 5.3.1
+* Merge pull request #8 from peczenyj/dependabot/go_modules/production-dependencies-a7e3f36068
+* Bump golang.org/x/tools in the production-dependencies group
+
 ## What's Changed in v0.0.4
+* bump version
 * Merge pull request #5 from peczenyj/dependabot/github_actions/codecov/codecov-action-5.1.2
 * Bump codecov/codecov-action from 4.5.0 to 5.1.2
 * Merge pull request #7 from peczenyj/improve-tests-and-cli
