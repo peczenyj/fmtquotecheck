@@ -1,6 +1,5 @@
 ---
 name: golangci-lint
-
 on:
   push:
     branches:
@@ -21,6 +20,6 @@ jobs:
           go-version: stable
       - run: make info go_fix go_vet
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: v1.62.2
+        uses: golangci/golangci-lint-action@v7
+      - name: govulncheck
+        uses: golang/govulncheck-action@v1
