@@ -1,6 +1,5 @@
 ---
 name: Go
-
 on:
   push:
     branches:
@@ -8,13 +7,18 @@ on:
   pull_request:
     branches:
       - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['1.21.x', '1.22.x', '1.23.x']
+        go:
+          - '1.22.x'
+          - '1.23.x'
+          - '1.24.x'
+        include:
+          - go: 'stable'
+            coverage: true
     name: Go ${{ matrix.go }} job
     steps:
       - uses: actions/checkout@v4
@@ -24,13 +28,16 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
 
+      - run: go version
       - name: Test
         run: make test
 
       - name: Coverage
+        if: ${{ matrix.coverage }}
         run: make coverage
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5.3.1
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: ${{ matrix.coverage }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
